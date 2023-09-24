@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+
+.dark-theme body {
+    background-color: #222;
+    color: #a12727;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.theme-toggle {
+    display: flex;
+}
+
+button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem;
+}
+
+.task-form, .task-list {
+    background-color: #922424;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task-form h2, .task-list h2, .task-details h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.task-form input, .task-form select, .task-list select {
+    display: block;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.task-form select {
+    background-color: #fff;
+}
+
+.task-form button, .task-list button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.task-form button:hover, .task-list button:hover {
+    background-color: #555;
+}
+
+.filter {
+    margin-bottom: 1rem;
+}
+
+.task-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.task-list li {
+    background-color: #f9f9f9;
+    margin: 0.5rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.task-list li:hover {
+    background-color: #eee;
+}
+
+.task-list li .view-details {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.task-list li .view-details:hover {
+    background-color: #555;
+}
+body.dark-theme {
+    background-color: #222;
+    color: #fff;
+}
+
+.task-details {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.task-details p {
+    margin: 0.5rem 0;
+}
+
+.task-details button {
+    margin-top: 1rem;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.task-details button:hover {
+    background-color: #555;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Task Manager</h1>
+        <div class="theme-toggle">
+            <button id="light-theme">Light Theme</button>
+            <button id="dark-theme">Dark Theme</button>
+        </div>
+    </header>
+    
+    <main>
+        <div class="task-form">
+            <h2>Add a Task</h2>
+            <input type="text" id="title" placeholder="Title">
+            <input type="text" id="description" placeholder="Description">
+            <input type="date" id="due-date">
+            <textarea id="detail" cols="30" rows="10" placeholder="Detail"></textarea>
+            <select id="priority">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+            </select>
+            <button id="add-task">Add Task</button>
+        </div>
+
+        <div class="task-list">
+            <h2>Task List</h2>
+            <div class="filter">
+                <label for="filter-priority">Filter by Priority:</label>
+                <select id="filter-priority">
+                    <option value="all">All</option>
+                    <option value="low">Low Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="high">High Priority</option>
+                </select>
+            </div>
+            <ul id="tasks"></ul>
+        </div>
+    </main>
+
+    <div class="task-details">
+        <h2>Task Details</h2>
+        <p id="task-title"></p>
+        <p id="task-description"></p>
+        <p id="task-due-date"></p>
+        <p id="task-detail"></p>
+        <p id="task-priority"></p>
+        <button id="update-task">Update</button>
+        <button id="delete-task">Delete</button>
+        <button id="close-details">Close</button>
+    </div>
+
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const lightThemeBtn = document.getElementById("light-theme");
+    const darkThemeBtn = document.getElementById("dark-theme");
+    const tasksList = document.getElementById("tasks");
+    const filterPriority = document.getElementById("filter-priority");
+    const taskDetails = document.querySelector(".task-details");
+
+    let tasks = [];
+
+    lightThemeBtn.addEventListener("click", () => {
+        document.body.classList.remove("dark-theme");
+    });
+
+    darkThemeBtn.addEventListener("click", () => {
+        document.body.classList.add("dark-theme");
+    });
+
+    const updateTaskList = () => {
+        tasksList.innerHTML = "";
+        tasks.forEach((task, index) => {
+            if (
+                filterPriority.value === "all" ||
+                filterPriority.value === task.priority
+            ) {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span>${task.title}</span>
+                    <span>${task.priority}</span>
+                    <button class="view-details">View Details</button>
+                `;
+                li.querySelector(".view-details").addEventListener("click", () => {
+                    displayTaskDetails(index);
+                });
+                tasksList.appendChild(li);
+            }
+        });
+    };
+
+    const displayTaskDetails = (index) => {
+        const task = tasks[index];
+        const taskTitle = document.getElementById("task-title");
+        const taskDescription = document.getElementById("task-description");
+        const taskDueDate = document.getElementById("task-due-date");
+        const taskDetail = document.getElementById("task-detail");
+        const taskPriority = document.getElementById("task-priority");
+        const updateBtn = document.getElementById("update-task");
+        const deleteBtn = document.getElementById("delete-task");
+        const closeBtn = document.getElementById("close-details");
+
+        taskTitle.textContent = task.title;
+        taskDescription.textContent = task.description;
+        taskDueDate.textContent = task.dueDate;
+        taskDetail.textContent = task.detail;
+        taskPriority.textContent = task.priority;
+
+        updateBtn.addEventListener("click", () => {
+            // Implement the update logic here
+            alert("Update button clicked!");
+        });
+
+        deleteBtn.addEventListener("click", () => {
+            // Implement the delete logic here
+            tasks.splice(index, 1);
+            taskDetails.style.display = "none";
+            updateTaskList();
+        });
+
+        closeBtn.addEventListener("click", () => {
+            taskDetails.style.display = "none";
+        });
+
+        taskDetails.style.display = "block";
+    };
+
+    const addTask = () => {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const dueDate = document.getElementById("due-date").value;
+        const detail = document.getElementById("detail").value;
+        const priority = document.getElementById("priority").value;
+
+        if (title && description && dueDate && detail && priority) {
+            const task = { title, description, dueDate, detail, priority };
+            tasks.push(task);
+            updateTaskList();
+            clearInputFields();
+        } else {
+            alert("Please fill in all the fields.");
+        }
+    };
+
+    const clearInputFields = () => {
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("due-date").value = "";
+        document.getElementById("detail").value = "";
+        document.getElementById("priority").value = "low";
+    };
+
+    document.getElementById("add-task").addEventListener("click", addTask);
+    document.getElementById("filter-priority").addEventListener("change", updateTaskList);
+
+    updateTaskList();
+});
+
+</script>
+</html>
